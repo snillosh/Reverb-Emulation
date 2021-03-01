@@ -113,6 +113,13 @@ FYPReverbProjectAudioProcessorEditor::FYPReverbProjectAudioProcessorEditor (FYPR
     combTime4Label.attachToComponent(&combTime4Slider, true);
     addAndMakeVisible(combTime4Label);
     
+    mixSlider.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
+    mixSlider.setTextBoxStyle(Slider::TextBoxBelow, true, 100, 50);
+    addAndMakeVisible(mixSlider);
+    mixLabel.setText("Dry / Wet", dontSendNotification);
+    mixLabel.attachToComponent(&mixSlider, true);
+    addAndMakeVisible(mixLabel);
+    
     allpassCoeff1SliderAttachment = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "ALLPASSCOEFF1", allpassCoeff1Slider);
     allpassCoeff2SliderAttachment = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "ALLPASSCOEFF2", allpassCoeff2Slider);
     allpassCoeff3SliderAttachment = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "ALLPASSCOEFF3", allpassCoeff3Slider);
@@ -127,6 +134,7 @@ FYPReverbProjectAudioProcessorEditor::FYPReverbProjectAudioProcessorEditor (FYPR
     combTime2SliderAttachment = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "COMBTIME2", combTime2Slider);
     combTime3SliderAttachment = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "COMBTIME3", combTime3Slider);
     combTime4SliderAttachment = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "COMBTIME4", combTime4Slider);
+    mixSliderAttachment = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "MIX", mixSlider);
 }
 
 FYPReverbProjectAudioProcessorEditor::~FYPReverbProjectAudioProcessorEditor()
@@ -155,4 +163,5 @@ void FYPReverbProjectAudioProcessorEditor::resized()
     combTime3Slider.setBounds(500, 500, 200, 100);
     combCoeff4Slider.setBounds(200, 600, 200, 100);
     combTime4Slider.setBounds(500, 600, 200, 100);
+    mixSlider.setBounds(200, 700, 200, 100);
 }

@@ -60,12 +60,20 @@ void FeedbackCombFilter::reset()
 
 float FeedbackCombFilter::processSample(float input)
 {
-    fOut = fDelSig + input;
-    thirdSignal = fOut * filterCoeff;
+    delayedSignal = pfCircularBuffer[iBufferReadPos];
+    
+    fVN = input - (filterCoeff * delayedSignal);
+    
+    fOut = (filterCoeff * fVN);
+    
+
+    //Circular Buffer setup and execution
+    //---------------------------------------------------------------------------------------------
+    pfCircularBuffer[iBufferWritePos] = fVN;
     iBufferWritePos++;
     if (iBufferWritePos > (iBufferSize -1))
         iBufferWritePos = 0;
-    pfCircularBuffer[iBufferWritePos] = fOut;
+    
     iBufferReadPos = iBufferWritePos - (fDelayTime * fSR);
     if (iBufferReadPos < 0){
         iBufferReadPos = (iBufferSize - (fDelayTime * fSR)) + iBufferWritePos;
@@ -77,7 +85,8 @@ float FeedbackCombFilter::processSample(float input)
 
     if (iBufferReadPos > (iBufferSize -1 ))
         iBufferReadPos = 0;
-    fDelSig = pfCircularBuffer[iBufferReadPos];
-    fDelSig = fDelSig * (filterCoeff * -1.f);
-    return thirdSignal;
+    //---------------------------------------------------------------------------------------------
+    //delayedSignal = pfCircularBuffer[iBufferReadPos];
+    
+    return fOut;
 }

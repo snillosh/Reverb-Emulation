@@ -149,6 +149,8 @@ void FYPReverbProjectAudioProcessor::updateParameters()
     combFilterTime2 = *apvts.getRawParameterValue("COMBTIME2");
     combFilterTime3 = *apvts.getRawParameterValue("COMBTIME3");
     combFilterTime4 = *apvts.getRawParameterValue("COMBTIME4");
+    mix = *apvts.getRawParameterValue("MIX");
+    
     
     allpassArray[0].setFilterCoeff(allpassCoeff1);
     allpassArray[0].setDelayTime(allpassTime1);
@@ -198,7 +200,7 @@ void FYPReverbProjectAudioProcessor::processBlock (juce::AudioBuffer<float>& buf
         float allpass2 = allpassArray[1].processSample(allpass1);
         float allpassOut = allpassArray[3].processSample(allpass2);
         
-        channelData[sample] = allpassOut;
+        channelData[sample] = (allpassOut * mix) + (channelData[sample] * (1 - mix));
          
         buffer.copyFrom(1, 0, buffer, 0, 0, buffer.getNumSamples());
     }
@@ -260,6 +262,8 @@ AudioProcessorValueTreeState::ParameterLayout FYPReverbProjectAudioProcessor::cr
     
     params.push_back(std::make_unique<AudioParameterFloat>("COMBCOEFF4", "Comb coeff 4", 0.0f, 0.99f, 0.764f));
     params.push_back(std::make_unique<AudioParameterFloat>("COMBTIME4", "Comb Time 4", 0.f, 3.999f, 1.123f));
+    
+    params.push_back(std::make_unique<AudioParameterFloat>("MIX", "Mix", 0.f, 1.f, 0.5f));
     
     
     return {params.begin(), params.end() };

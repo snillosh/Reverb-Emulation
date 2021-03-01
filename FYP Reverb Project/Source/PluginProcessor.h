@@ -69,7 +69,7 @@ private:
     std::array<SchroederAllPass, 3> allpassArray;
     std::array<FeedbackCombFilter, 4> combFilterArray;
     
-    float allpassCoeff1, allpassCoeff2, allpassCoeff3, allpassTime1, allpassTime2, allpassTime3, combFilterCoeff1, combFilterCoeff2, combFilterCoeff3, combFilterCoeff4, combFilterTime1, combFilterTime2, combFilterTime3, combFilterTime4;
+    float allpassCoeff1, allpassCoeff2, allpassCoeff3, allpassTime1, allpassTime2, allpassTime3, combFilterCoeff1, combFilterCoeff2, combFilterCoeff3, combFilterCoeff4, combFilterTime1, combFilterTime2, combFilterTime3, combFilterTime4, mix;
     
     AudioProcessorValueTreeState::ParameterLayout createParameters();
 };

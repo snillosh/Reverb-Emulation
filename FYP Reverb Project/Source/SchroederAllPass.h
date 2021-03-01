@@ -38,11 +38,12 @@ private:
     int iBufferSize;
     int iBufferWritePos;
     int iBufferReadPos;
-    float fDelSig = 0;
     
     float filterCoeff;
     float fDelayTime;
     
     float fOut;
-    float thirdSignal;
+    float fVN;
+    float fIn;
+    float delayedSignal;
 };
