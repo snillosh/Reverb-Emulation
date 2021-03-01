@@ -9,6 +9,10 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include <array>
+
+#include "SchroederAllPass.h"
+#include "FeedbackCombFilter.h"
 
 //==============================================================================
 /**
@@ -52,8 +56,20 @@ public:
     //==============================================================================
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
+    //==============================================================================
 
+    void updateParameters();
+    
+    AudioProcessorValueTreeState apvts;
+    
 private:
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FYPReverbProjectAudioProcessor)
+    
+    std::array<SchroederAllPass, 3> allpassArray;
+    std::array<FeedbackCombFilter, 4> combFilterArray;
+    
+    float allpassCoeff1, allpassCoeff2, allpassCoeff3, allpassTime1, allpassTime2, allpassTime3, combFilterCoeff1, combFilterCoeff2, combFilterCoeff3, combFilterCoeff4, combFilterTime1, combFilterTime2, combFilterTime3, combFilterTime4;
+    
+    AudioProcessorValueTreeState::ParameterLayout createParameters();
 };

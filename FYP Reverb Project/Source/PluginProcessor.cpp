@@ -19,7 +19,7 @@ FYPReverbProjectAudioProcessor::FYPReverbProjectAudioProcessor()
                       #endif
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
-                       )
+                       ), apvts(*this, nullptr, "Parameters", createParameters())
 #endif
 {
 }
@@ -93,8 +93,12 @@ void FYPReverbProjectAudioProcessor::changeProgramName (int index, const juce::S
 //==============================================================================
 void FYPReverbProjectAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    // Use this method as the place to do any pre-playback
-    // initialisation that you need..
+    
+    for (int i = 0; i < 3; i++)
+        allpassArray[i].initialise();
+    
+    for (int i = 0; i < 4; i++)
+        combFilterArray[i].initialise();
 }
 
 void FYPReverbProjectAudioProcessor::releaseResources()
@@ -129,32 +133,74 @@ bool FYPReverbProjectAudioProcessor::isBusesLayoutSupported (const BusesLayout& 
 }
 #endif
 
+void FYPReverbProjectAudioProcessor::updateParameters()
+{
+    allpassCoeff1 = *apvts.getRawParameterValue("ALLPASSCOEFF1");
+    allpassCoeff2 = *apvts.getRawParameterValue("ALLPASSCOEFF2");
+    allpassCoeff3 = *apvts.getRawParameterValue("ALLPASSCOEFF3");
+    allpassTime1 = *apvts.getRawParameterValue("ALLPASSTIME1");
+    allpassTime2 = *apvts.getRawParameterValue("ALLPASSTIME2");
+    allpassTime3 = *apvts.getRawParameterValue("ALLPASSTIME3");
+    combFilterCoeff1 = *apvts.getRawParameterValue("COMBCOEFF1");
+    combFilterCoeff2 = *apvts.getRawParameterValue("COMBCOEFF2");
+    combFilterCoeff3 = *apvts.getRawParameterValue("COMBCOEFF3");
+    combFilterCoeff4 = *apvts.getRawParameterValue("COMBCOEFF4");
+    combFilterTime1 = *apvts.getRawParameterValue("COMBTIME1");
+    combFilterTime2 = *apvts.getRawParameterValue("COMBTIME2");
+    combFilterTime3 = *apvts.getRawParameterValue("COMBTIME3");
+    combFilterTime4 = *apvts.getRawParameterValue("COMBTIME4");
+    
+    allpassArray[0].setFilterCoeff(allpassCoeff1);
+    allpassArray[0].setDelayTime(allpassTime1);
+    
+    allpassArray[1].setFilterCoeff(allpassCoeff2);
+    allpassArray[1].setDelayTime(allpassTime2);
+    
+    allpassArray[2].setFilterCoeff(allpassCoeff3);
+    allpassArray[2].setDelayTime(allpassTime3);
+    
+    combFilterArray[0].setFilterCoeff(combFilterCoeff1);
+    combFilterArray[0].setDelayTime(combFilterTime1);
+    
+    combFilterArray[1].setFilterCoeff(combFilterCoeff2);
+    combFilterArray[1].setDelayTime(combFilterTime2);
+    
+    combFilterArray[2].setFilterCoeff(combFilterCoeff3);
+    combFilterArray[2].setDelayTime(combFilterTime3);
+    
+    combFilterArray[3].setFilterCoeff(combFilterCoeff4);
+    combFilterArray[3].setDelayTime(combFilterTime4);
+}
+
 void FYPReverbProjectAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
     juce::ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 
-    // In case we have more outputs than inputs, this code clears any output
-    // channels that didn't contain input data, (because these aren't
-    // guaranteed to be empty - they may contain garbage).
-    // This is here to avoid people getting screaming feedback
-    // when they first compile a plugin, but obviously you don't need to keep
-    // this code if your algorithm always overwrites all the output channels.
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
-
-    // This is the place where you'd normally do the guts of your plugin's
-    // audio processing...
-    // Make sure to reset the state if your inner loop is processing
-    // the samples and the outer loop is handling the channels.
-    // Alternatively, you can process the samples with the channels
-    // interleaved by keeping the same state.
-    for (int channel = 0; channel < totalNumInputChannels; ++channel)
+    
+        
+    for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
     {
-        auto* channelData = buffer.getWritePointer (channel);
-
-        // ..do something to the data...
+        updateParameters();
+        auto* channelData = buffer.getWritePointer(0);
+        
+        float combOut1 = combFilterArray[0].processSample(channelData[sample]);
+        float combOut2 = combFilterArray[1].processSample(channelData[sample]);
+        float combOut3 = combFilterArray[2].processSample(channelData[sample]);
+        float combOut4 = combFilterArray[3].processSample(channelData[sample]);
+        
+        float combOut = combOut1 + combOut2 + combOut3 + combOut4;
+        
+        float allpass1 = allpassArray[0].processSample(combOut);
+        float allpass2 = allpassArray[1].processSample(allpass1);
+        float allpassOut = allpassArray[3].processSample(allpass2);
+        
+        channelData[sample] = allpassOut;
+         
+        buffer.copyFrom(1, 0, buffer, 0, 0, buffer.getNumSamples());
     }
 }
 
@@ -188,4 +234,33 @@ void FYPReverbProjectAudioProcessor::setStateInformation (const void* data, int 
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
     return new FYPReverbProjectAudioProcessor();
+}
+
+AudioProcessorValueTreeState::ParameterLayout FYPReverbProjectAudioProcessor::createParameters()
+{
+    std::vector<std::unique_ptr<RangedAudioParameter>> params;
+    
+    params.push_back(std::make_unique<AudioParameterFloat>("ALLPASSCOEFF1", "Allpass coeff 1", 0.0f, 0.99f, 0.7f));
+    params.push_back(std::make_unique<AudioParameterFloat>("ALLPASSTIME1", "Allpass time 1", 0.f, 3.999f, 0.125f));
+    
+    params.push_back(std::make_unique<AudioParameterFloat>("ALLPASSCOEFF2", "Allpass coeff 2", 0.0f, 0.99f, 0.7f));
+    params.push_back(std::make_unique<AudioParameterFloat>("ALLPASSTIME2", "Allpass time 2", 0.f, 3.999f, 0.042f));
+    
+    params.push_back(std::make_unique<AudioParameterFloat>("ALLPASSCOEFF3", "Allpass coeff 3", 0.0f, 0.99f, 0.7f));
+    params.push_back(std::make_unique<AudioParameterFloat>("ALLPASSTIME3", "Allpass time 3", 0.f, 3.999f, 0.012f));
+    
+    params.push_back(std::make_unique<AudioParameterFloat>("COMBCOEFF1", "Comb coeff 1", 0.0f, 0.99f, 0.805f));
+    params.push_back(std::make_unique<AudioParameterFloat>("COMBTIME1", "Comb Time 1", 0.f, 3.999f, 0.901f));
+    
+    params.push_back(std::make_unique<AudioParameterFloat>("COMBCOEFF2", "Comb coeff 2", 0.0f, 0.99f, 0.827f));
+    params.push_back(std::make_unique<AudioParameterFloat>("COMBTIME2", "Comb Time 2", 0.f, 3.999f, 0.778f));
+    
+    params.push_back(std::make_unique<AudioParameterFloat>("COMBCOEFF3", "Comb coeff 3", 0.0f, 0.99f, 0.783f));
+    params.push_back(std::make_unique<AudioParameterFloat>("COMBTIME3", "Comb Time 3", 0.f, 3.999f, 1.011f));
+    
+    params.push_back(std::make_unique<AudioParameterFloat>("COMBCOEFF4", "Comb coeff 4", 0.0f, 0.99f, 0.764f));
+    params.push_back(std::make_unique<AudioParameterFloat>("COMBTIME4", "Comb Time 4", 0.f, 3.999f, 1.123f));
+    
+    
+    return {params.begin(), params.end() };
 }
