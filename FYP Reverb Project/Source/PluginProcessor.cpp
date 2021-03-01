@@ -150,28 +150,32 @@ void FYPReverbProjectAudioProcessor::updateParameters()
     combFilterTime3 = *apvts.getRawParameterValue("COMBTIME3");
     combFilterTime4 = *apvts.getRawParameterValue("COMBTIME4");
     mix = *apvts.getRawParameterValue("MIX");
+    time = *apvts.getRawParameterValue("TIME");
+    coeff = *apvts.getRawParameterValue("COEFF");
+
     
     
-    allpassArray[0].setFilterCoeff(allpassCoeff1);
-    allpassArray[0].setDelayTime(allpassTime1);
     
-    allpassArray[1].setFilterCoeff(allpassCoeff2);
-    allpassArray[1].setDelayTime(allpassTime2);
+    allpassArray[0].setFilterCoeff(allpassCoeff1 * coeff);
+    allpassArray[0].setDelayTime(allpassTime1 * time);
     
-    allpassArray[2].setFilterCoeff(allpassCoeff3);
-    allpassArray[2].setDelayTime(allpassTime3);
+    allpassArray[1].setFilterCoeff(allpassCoeff2 * coeff);
+    allpassArray[1].setDelayTime(allpassTime2 * time);
     
-    combFilterArray[0].setFilterCoeff(combFilterCoeff1);
-    combFilterArray[0].setDelayTime(combFilterTime1);
+    allpassArray[2].setFilterCoeff(allpassCoeff3 * coeff);
+    allpassArray[2].setDelayTime(allpassTime3 * time);
     
-    combFilterArray[1].setFilterCoeff(combFilterCoeff2);
-    combFilterArray[1].setDelayTime(combFilterTime2);
+    combFilterArray[0].setFilterCoeff(combFilterCoeff1 * coeff);
+    combFilterArray[0].setDelayTime(combFilterTime1 * time);
     
-    combFilterArray[2].setFilterCoeff(combFilterCoeff3);
-    combFilterArray[2].setDelayTime(combFilterTime3);
+    combFilterArray[1].setFilterCoeff(combFilterCoeff2 * coeff);
+    combFilterArray[1].setDelayTime(combFilterTime2 * time);
     
-    combFilterArray[3].setFilterCoeff(combFilterCoeff4);
-    combFilterArray[3].setDelayTime(combFilterTime4);
+    combFilterArray[2].setFilterCoeff(combFilterCoeff3 * coeff);
+    combFilterArray[2].setDelayTime(combFilterTime3 * time);
+    
+    combFilterArray[3].setFilterCoeff(combFilterCoeff4 * coeff);
+    combFilterArray[3].setDelayTime(combFilterTime4 * time);
 }
 
 void FYPReverbProjectAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
@@ -263,8 +267,13 @@ AudioProcessorValueTreeState::ParameterLayout FYPReverbProjectAudioProcessor::cr
     params.push_back(std::make_unique<AudioParameterFloat>("COMBCOEFF4", "Comb coeff 4", 0.0f, 0.99f, 0.764f));
     params.push_back(std::make_unique<AudioParameterFloat>("COMBTIME4", "Comb Time 4", 0.f, 3.999f, 1.123f));
     
-    params.push_back(std::make_unique<AudioParameterFloat>("MIX", "Mix", 0.f, 1.f, 0.5f));
+    params.push_back(std::make_unique<AudioParameterFloat>("MIX", "Mix", 0.f, 1.f, 1.0f));
     
+    params.push_back(std::make_unique<AudioParameterFloat>("TIME", "Time", 0.f, 1.f, 1.0f));
+    
+    params.push_back(std::make_unique<AudioParameterFloat>("COEFF", "Coeff", 0.f, 1.f, 1.0f));
+
+
     
     return {params.begin(), params.end() };
 }

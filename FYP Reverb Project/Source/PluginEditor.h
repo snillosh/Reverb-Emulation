@@ -42,6 +42,8 @@ private:
     Slider combTime3Slider;
     Slider combTime4Slider;
     Slider mixSlider;
+    Slider timeSlider;
+    Slider coeffSlider;
     
     Label allpassCoeff1Label;
     Label allpassCoeff2Label;
@@ -58,6 +60,8 @@ private:
     Label combTime3Label;
     Label combTime4Label;
     Label mixLabel;
+    Label timeLabel;
+    Label coeffLabel;
     
     std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> allpassCoeff1SliderAttachment;
     std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> allpassCoeff2SliderAttachment;
@@ -74,6 +78,9 @@ private:
     std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> combTime3SliderAttachment;
     std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> combTime4SliderAttachment;
     std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> mixSliderAttachment;
+    std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> timeSliderAttachment;
+    std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> coeffSliderAttachment;
+
 
     
     FYPReverbProjectAudioProcessor& audioProcessor;

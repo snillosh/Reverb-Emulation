@@ -120,6 +120,20 @@ FYPReverbProjectAudioProcessorEditor::FYPReverbProjectAudioProcessorEditor (FYPR
     mixLabel.attachToComponent(&mixSlider, true);
     addAndMakeVisible(mixLabel);
     
+    timeSlider.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
+    timeSlider.setTextBoxStyle(Slider::TextBoxBelow, true, 100, 50);
+    addAndMakeVisible(timeSlider);
+    timeLabel.setText("Time", dontSendNotification);
+    timeLabel.attachToComponent(&timeSlider, true);
+    addAndMakeVisible(timeLabel);
+    
+    coeffSlider.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
+    coeffSlider.setTextBoxStyle(Slider::TextBoxBelow, true, 100, 50);
+    addAndMakeVisible(coeffSlider);
+    coeffLabel.setText("Coeff", dontSendNotification);
+    coeffLabel.attachToComponent(&coeffSlider, true);
+    addAndMakeVisible(coeffLabel);
+    
     allpassCoeff1SliderAttachment = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "ALLPASSCOEFF1", allpassCoeff1Slider);
     allpassCoeff2SliderAttachment = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "ALLPASSCOEFF2", allpassCoeff2Slider);
     allpassCoeff3SliderAttachment = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "ALLPASSCOEFF3", allpassCoeff3Slider);
@@ -135,6 +149,8 @@ FYPReverbProjectAudioProcessorEditor::FYPReverbProjectAudioProcessorEditor (FYPR
     combTime3SliderAttachment = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "COMBTIME3", combTime3Slider);
     combTime4SliderAttachment = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "COMBTIME4", combTime4Slider);
     mixSliderAttachment = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "MIX", mixSlider);
+    timeSliderAttachment = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "TIME", timeSlider);
+    coeffSliderAttachment = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "COEFF", coeffSlider);
 }
 
 FYPReverbProjectAudioProcessorEditor::~FYPReverbProjectAudioProcessorEditor()
@@ -164,4 +180,6 @@ void FYPReverbProjectAudioProcessorEditor::resized()
     combCoeff4Slider.setBounds(200, 600, 200, 100);
     combTime4Slider.setBounds(500, 600, 200, 100);
     mixSlider.setBounds(200, 700, 200, 100);
+    timeSlider.setBounds(500, 700, 200, 100);
+    coeffSlider.setBounds(200, 800, 200, 100);
 }
